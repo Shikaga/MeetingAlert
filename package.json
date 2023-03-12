@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Shikaga/MeetingAlert/issues"
   },
-  "homepage": "https://github.com/Shikaga/MeetingAlert#readme"
+  "homepage": "https://github.com/Shikaga/MeetingAlert#readme",
+  "dependencies": {
+    "googleapis": "^112.0.0"
+  }
 }
