@@ -1,0 +1,4 @@
+{
+    "minutesToActivateBeforeMeeting": 5,
+    "cadenceInMiutesToPollForMeetingStatus": 3
+}

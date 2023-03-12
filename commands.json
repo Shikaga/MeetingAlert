@@ -1,0 +1,4 @@
+{
+    "activate": "echo 'activate'",
+    "deactivate": "echo 'deactivate'"
+}

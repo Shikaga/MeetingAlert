@@ -4,6 +4,14 @@ const {google} = require('googleapis');
     //https://developers.google.com/calendar/api/quickstart/nodejs
     //https://console.developers.google.com/apis/credentials
 const credentials = require('./credentials.json');
+let oauth2Client;
+
+async function getAuthenticatedClientOnce() {
+    if (!oauth2Client) {
+        oauth2Client = await getAuthenticatedClient();
+    }
+    return oauth2Client;
+}
 
 //get an authenticated oAuth2Client
 async function getAuthenticatedClient() {
@@ -17,9 +25,9 @@ async function getAuthenticatedClient() {
 function getOauth2Client() {
     // Create an OAuth2 client object
     const oauth2Client = new google.auth.OAuth2(
-        credentials.web.client_id,
-        credentials.web.client_secret,
-        credentials.web.redirect_uris[0]
+        credentials.client_id,
+        credentials.client_secret,
+        credentials.redirect_uris[0]
     );
     return oauth2Client;
 }
@@ -65,5 +73,5 @@ async function getToken(oauth2Client, code) {
 }
 
 module.exports = {
-    getAuthenticatedClient
+    getAuthenticatedClientOnce
 }
