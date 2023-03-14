@@ -17,6 +17,7 @@ function requestCalendarEvents(oauth2Client) {
 
     calendar.events.list({
         calendarId: "primary",
+        showDeleted: false,
         timeMin: oneHourAgo.toISOString(),
         maxResults: 10,
         singleEvents: true,
@@ -26,9 +27,16 @@ function requestCalendarEvents(oauth2Client) {
             console.error("The API returned an error: " + err);
             return;
         }
-        const events = res.data.items;
+        const events = filterOutEvents(res.data.items)
         checkEvents(events);
     });
+}
+
+function filterOutEvents(events) {
+    let filteredEvents = events.filter(event => event.start.dateTime && event.end.dateTime);
+    filteredEvents = events.filter(event => event.transparency !== "transparent");
+    filteredEvents = events.filter(event => event.responseStatus !== "declined");
+    return filteredEvents;
 }
 
 function checkEvents(events) {
@@ -44,7 +52,9 @@ function checkEvents(events) {
         });
 
         if (meeting) {
-            console.log("You have a meeting now!");
+            //print meeting summary
+
+            console.log("You have a meeting now!", meeting.summary);
             runCommand("activate");
         } else {
             console.log("You don't have a meeting now.");
