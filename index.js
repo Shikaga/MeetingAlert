@@ -32,10 +32,14 @@ function requestCalendarEvents(oauth2Client) {
     });
 }
 
+function getSelfFromAttendees(attendees) {
+    return attendees.find(attendee => attendee.self);
+}
+
 function filterOutEvents(events) {
     let filteredEvents = events.filter(event => event.start.dateTime && event.end.dateTime);
     filteredEvents = events.filter(event => event.transparency !== "transparent");
-    filteredEvents = events.filter(event => event.responseStatus !== "declined");
+    filteredEvents = events.filter(event => getSelfFromAttendees(event.attendees).responseStatus != "declined");
     return filteredEvents;
 }
 
