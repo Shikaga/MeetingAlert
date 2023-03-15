@@ -39,7 +39,12 @@ function getSelfFromAttendees(attendees) {
 function filterOutEvents(events) {
     let filteredEvents = events.filter(event => event.start.dateTime && event.end.dateTime);
     filteredEvents = events.filter(event => event.transparency !== "transparent");
-    filteredEvents = events.filter(event => getSelfFromAttendees(event.attendees).responseStatus != "declined");
+    filteredEvents = events.filter(event => {
+        if (!event.attendees) {
+            return true;
+        }
+        return getSelfFromAttendees(event.attendees).responseStatus != "declined"
+    });
     return filteredEvents;
 }
 
