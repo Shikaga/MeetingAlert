@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Shikaga/MeetingAlert#readme",
   "dependencies": {
+    "express": "^4.18.2",
     "googleapis": "^112.0.0"
   }
 }

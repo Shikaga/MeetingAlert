@@ -4,74 +4,75 @@ const {google} = require('googleapis');
     //https://developers.google.com/calendar/api/quickstart/nodejs
     //https://console.developers.google.com/apis/credentials
 const credentials = require('./credentials.json');
-let oauth2Client;
 
-async function getAuthenticatedClientOnce() {
-    if (!oauth2Client) {
-        oauth2Client = await getAuthenticatedClient();
+//Create and export Authenticator class
+module.exports = class Authenticator {
+    constructor() {
+        this.oauth2Client = null;
+        this.codePromise = null;
     }
-    return oauth2Client;
-}
 
-//get an authenticated oAuth2Client
-async function getAuthenticatedClient() {
-    const oauth2Client = getOauth2Client();
-    const code = await getAuthenticationCode(oauth2Client);
-    //bb(oauth2Client, code);
-    await getToken(oauth2Client, code);
-    return oauth2Client;
-}
-
-function getOauth2Client() {
-    // Create an OAuth2 client object
-    const oauth2Client = new google.auth.OAuth2(
-        credentials.client_id,
-        credentials.client_secret,
-        credentials.redirect_uris[0]
-    );
-    return oauth2Client;
-}
-
-async function getAuthenticationCode(oauth2Client) {
-    // Generate an authorization URL
-    const authUrl = oauth2Client.generateAuthUrl({
-        access_type: "offline",
-        scope: ["https://www.googleapis.com/auth/calendar.readonly"]
-    });
+    async getAuthenticatedClientOnce() {
+        if (!this.oauth2Client) {
+            this.oauth2Client = await this.getAuthenticatedClient();
+        }
+        return this.oauth2Client;
+    }
     
-    // Prompt the user to visit the URL and grant access
-    console.log("Authorize this app by visiting this url:", authUrl);
-    const code = await requestInput();
-    return code;
-}
-
-async function requestInput() {
-    const readline = require("readline");
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-    return new Promise((resolve, reject) => {
-        rl.question("Enter the code from that page here: ", (code) => {
-            rl.close();
-            resolve(code);
+    //get an authenticated oAuth2Client
+    async getAuthenticatedClient() {
+        const oauth2Client = this.getOauth2Client();
+        const code = await this.getAuthenticationCode(oauth2Client);
+        //bb(oauth2Client, code);
+        await this.getToken(oauth2Client, code);
+        return oauth2Client;
+    }
+    
+    getOauth2Client() {
+        // Create an OAuth2 client object
+        const oauth2Client = new google.auth.OAuth2(
+            credentials.client_id,
+            credentials.client_secret,
+            credentials.redirect_uris[0]
+        );
+        return oauth2Client;
+    }
+    
+    async getAuthenticationCode(oauth2Client) {
+        // Generate an authorization URL
+        const authUrl = oauth2Client.generateAuthUrl({
+            access_type: "offline",
+            scope: ["https://www.googleapis.com/auth/calendar.readonly"]
         });
-    });
-}
-
-async function getToken(oauth2Client, code) {
-    return new Promise((resolve, reject) => {
-        oauth2Client.getToken(code, (err, token) => {
-            if (err) {
-                console.error("Error retrieving access token", err);
-                return;
-            }
-            oauth2Client.setCredentials(token);
-            resolve(oauth2Client);
+        
+        // Prompt the user to visit the URL and grant access
+        console.log("Authorize this app by visiting this url:", authUrl);
+        return await new Promise((resolve, reject) => {
+            this.codePromise = resolve;
         });
-    });
+    }
+    
+    async requestInput() {
+        const readline = require("readline");
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+    }
+    
+    async getToken(oauth2Client, code) {
+        return new Promise((resolve, reject) => {
+            oauth2Client.getToken(code, (err, token) => {
+                if (err) {
+                    console.error("Error retrieving access token", err);
+                    return;
+                }
+                oauth2Client.setCredentials(token);
+                resolve(oauth2Client);
+            });
+        });
+    }
 }
 
-module.exports = {
-    getAuthenticatedClientOnce
-}
+
+
